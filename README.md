@@ -1,1 +1,1 @@
- Educational and research purposes only with express permission.
+ Educational and research purposes only with explicit  permission.
